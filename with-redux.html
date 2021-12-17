@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/redux/5.0.0-alpha.0/redux.js"></script>
 </head>
 <body>
     <style>
@@ -17,10 +18,18 @@
     <div id="green"></div>
     <div id="blue"></div>
     <script>
+        // import { createStore } from 'redux';
+        // 객체를 복사할 때 Object.assign({}, {name:'egoing'}, {city:'seoul'}); 이용 첫번째 인자는 무조건 빈 객체 return 값이 첫번째 인자인 객체이기 때문에
         function reducer(state, action) {
+            console.log(state, action);
             if(state === undefined) {
                 return {color:'yellow'}
             }
+            let newState;
+            if(action.type === 'CHANGE_COLOR'){
+                newState = Object.assign({}, state, {color:'red'})
+            }
+            return newState;
         }
         let store = Redux.createStore(reducer);
         console.log(store.getState());
@@ -31,42 +40,13 @@
                 <div class="container" id="component_red" style="background-color:${state.color}">
                     <h1>red</h1>
                     <input type="button" value="fire" onclick="
-                        document.querySelector('#component_red').style.backgroundColor = 'red';
-                        document.querySelector('#component_green').style.backgroundColor = 'red';
-                        document.querySelector('#component_blue').style.backgroundColor = 'red';
+                        // 타입은 반드시 있어야함
+                        store.dispatch({ type: 'CHANGE_COLOR', color: 'red'});
                     ">
                 </div>
             `;
         }
         red();
-
-        function green() {
-            document.querySelector('#green').innerHTML = `
-                <div class="container" id="component_green">
-                    <h1>green</h1>
-                    <input type="button" value="fire" onclick="
-                        document.querySelector('#component_green').style.backgroundColor = 'green';
-                        document.querySelector('#component_red').style.backgroundColor = 'green';
-                        document.querySelector('#component_blue').style.backgroundColor = 'green';
-                    ">
-                </div>
-            `;
-        }
-        green();
-
-        function blue() {
-            document.querySelector('#blue').innerHTML = `
-                <div class="container" id="component_blue">
-                    <h1>blue</h1>
-                    <input type="button" value="fire" onclick="
-                        document.querySelector('#component_green').style.backgroundColor = 'blue';
-                        document.querySelector('#component_red').style.backgroundColor = 'blue';
-                        document.querySelector('#component_blue').style.backgroundColor = 'blue';
-                    ">
-                </div>
-            `;
-        }
-        blue();
     </script>
 </body>
 </html>

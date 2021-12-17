@@ -1,0 +1,22 @@
+{
+  "name": "redux_prac",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bongjun-kim94/redux_prac.git"
+  },
+  "author": "bongjun",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bongjun-kim94/redux_prac/issues"
+  },
+  "homepage": "https://github.com/bongjun-kim94/redux_prac#readme",
+  "dependencies": {
+    "redux": "^4.1.2"
+  }
+}
