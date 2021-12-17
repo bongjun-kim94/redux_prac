@@ -15,8 +15,8 @@
         }
     </style>
     <div id="red"></div>
-    <div id="green"></div>
     <div id="blue"></div>
+    <div id="green"></div>
     <script>
         // import { createStore } from 'redux';
         // 객체를 복사할 때 Object.assign({}, {name:'egoing'}, {city:'seoul'}); 이용 첫번째 인자는 무조건 빈 객체 return 값이 첫번째 인자인 객체이기 때문에
@@ -27,7 +27,7 @@
             }
             let newState;
             if(action.type === 'CHANGE_COLOR'){
-                newState = Object.assign({}, state, {color:'red'})
+                newState = Object.assign({}, state, {color:action.color});
             }
             return newState;
         }
@@ -46,7 +46,38 @@
                 </div>
             `;
         }
+        store.subscribe(red);
         red();
+
+        function blue() {
+            let state = store.getState();
+            document.querySelector('#blue').innerHTML = `
+                <div class="container" id="component_red" style="background-color:${state.color}">
+                    <h1>blue</h1>
+                    <input type="button" value="fire" onclick="
+                        // 타입은 반드시 있어야함
+                        store.dispatch({ type: 'CHANGE_COLOR', color: 'blue'});
+                    ">
+                </div>
+            `;
+        }
+        store.subscribe(blue);
+        blue();
+
+        function green() {
+            let state = store.getState();
+            document.querySelector('#green').innerHTML = `
+                <div class="container" id="component_red" style="background-color:${state.color}">
+                    <h1>green</h1>
+                    <input type="button" value="fire" onclick="
+                        // 타입은 반드시 있어야함
+                        store.dispatch({ type: 'CHANGE_COLOR', color: 'green'});
+                    ">
+                </div>
+            `;
+        }
+        store.subscribe(green);
+        green();
     </script>
 </body>
 </html>
