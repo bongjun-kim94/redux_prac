@@ -26,23 +26,20 @@
             let state = store.getState();
             let i = 0;
             let liTags = '';
-            while (i < state.contents.length){
+            while(i < state.contents.length){
                 liTags = liTags + `
-                    <li>
-                        <a onclick="
-                            // 이벤트가 발생했을 때 태그의 기본적인 동작을 방지하는 것
-                            event.preventDefault();
-                            let action = {type: 'SELECT', id: ${state.contents[i].id}}
-                            store.dispatch(action);
-                        " 
-                        href="${state.contents[i].id}">
-                            ${state.contents[i].title}
-                        </a>
-                    </li>
-                `;
-                i = i + 1;
+                <li>
+                    <a onclick="
+                        // 이벤트가 발생했을 때 태그의 기본적인 동작을 방지하는 것
+                        event.preventDefault();
+                        let action = {type:'SELECT', id:${state.contents[i].id}}
+                        store.dispatch(action);
+                    " href="${state.contents[i].id}">
+                        ${state.contents[i].title}
+                    </a>
+                </li>`;
+                i += 1;
             }            
-            console.log(state);
             document.querySelector('#toc').innerHTML = `
             <nav>
                 <ol>${liTags}</ol>
@@ -50,21 +47,28 @@
             `;
         }
 
-        function control() {
+        function control(){
             document.querySelector('#control').innerHTML = `
-                <ul>
-                    <li><a onclick="
-                        event.preventDefault();
-                    " 
-                    href="/create">create</a></li>
-                    <li><input type="button" value="delete"></li>
-                </ul>
+            <ul>
+                <li><a onclick="
+                    event.preventDefault();
+                    store.dispatch({
+                        type:'CHANGE_MODE',
+                        mode:'create'
+                    })
+                " href="/create">create</a></li>
+                <li><input onclick="
+                    store.dispatch({
+                        type:'DELETE'
+                    });
+                " type="button" value="delete"></li>
+            </ul>
             `;
         }
 
         function article() {
             let state = store.getState();
-            if (state.mode === 'create') {
+            if(state.mode === 'create') {
                 document.querySelector('#content').innerHTML = `
                 <article>
                     <form onsubmit="
@@ -76,21 +80,20 @@
                             title:_title,
                             desc:_desc
                         })
-                        console.log(title);
                     ">
-                        <p>
-                            <input type="text" name="title" placeholder="title">
-                        </p>
-                        <p>
-                            <textarea name="desc" placeholder="description"></textarea>
-                        </p>
-                        <p>
-                            <input type="submit">
-                        </p>
-                    </form>
-                </article>
-                `;
-            } else if (state.mode = 'read') {
+                    <p>
+                        <input type="text" name="title" placeholder="title">
+                    </p>
+                    <p>
+                        <textarea name="desc" placeholder="description"></textarea>
+                    </p>
+                    <p>
+                        <input type="submit">
+                    </p>
+                </form>
+            </article>
+            `
+            } else if(state.mode === 'read') {
                 let i = 0;
                 let aTitle, aDesc;
                 while(i < state.contents.length) {
@@ -99,47 +102,78 @@
                         aDesc = state.contents[i].desc;
                         break;
                     }
+                    i += i;
                 }
+                document.querySelector('#content').innerHTML = `
+                <article>
+                    <h2>${aTitle}</h2>
+                    ${aDesc}
+                </article>
+                `
+            } else if(state.mode === 'welcome'){
+                document.querySelector('#content').innerHTML = `
+                <article>
+                    <h2>Welcome</h2>
+                    Hello, Redux!!!
+                </article>
+                `
             }
         }
-
         function reducer(state, action) {
-            if (state === undefined) {
+            if(state === undefined){
                 return {
                     max_id:2,
-                    mode: 'create',
-                    selected_id: null,
-                    contents: [
-                        {id: 1, title: 'HTML', desc: 'HTML is..'},
-                        {id: 2, title: 'CSS', desc: 'CSS is..'}
+                    mode:'welcome',
+                    selcted_id:2,
+                    contents:[
+                        {id:1,title:'HTML',desc:'HTML is ..'},
+                        {id:2,title:'CSS', desc:'CSS is ..'}
                     ]
                 }
             }
             let newState;
-            if(action.type == 'SELECT') {
-                newState = Object.assign({}, state, {selected_id:action.id});
-            } else if (action.type == 'CREATE') {
+            if(action.type === 'SELECT'){
+                newState = Object.assign(
+                    {}, 
+                    state, 
+                    {selcted_id:action.id, mode:'read'});
+            } else if(action.type === 'CREATE') {
                 let newMaxId = state.max_id + 1;
                 // 배열을 복제할 땐 concat(); 사용
                 let newContents = state.contents.concat();
                 newContents.push({id:newMaxId, title:action.title, desc:action.desc});
-                Object.assign({}, state, {
+                newState = Object.assign({}, state, {
                     max_id:newMaxId,
-                    contents:newContens,
+                    contents:newContents,
                     mode:'read'
                 })
+            } else if(action.type === 'DELETE') {
+                let newContents = [];
+                let i = 0;
+                while(i < state.contents.length) {
+                    if(state.selected_id !== state.contents[i].id) {
+                        newContents.push(
+                            state.contents[i]
+                        );
+                    }
+                    i += 1;
+                }
+                newState = Object.assign({}, state, {
+                    contents:newContents,
+                    mode:'welcome'
+                })
+            } else if(action.type === 'CHANGE_MODE'){
+                newState = Object.assign({}, state, {
+                    mode:action.mode
+                });
             }
             console.log(action, state, newState);
-
             // 리턴하는 값은 새로운 state
             return newState;
         }
-        let store = Redux.createStore(
-            reducer,
-            window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-        );
+        let store = Redux.createStore(reducer);
         store.subscribe(article);
-
+        store.subscribe(TOC);
         subject();
         TOC();
         control();
